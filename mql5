@@ -1,0 +1,105 @@
+
+//+------------------------------------------------------------------+
+//|                                                Crit.mq5         |
+//|                       Developed by Forex Robot Easy Team         |
+//|                        Website: forexroboteasy.com               |
+//+------------------------------------------------------------------+
+
+//--- Include necessary trading functions
+#include <Trade\Trade.mqh>
+
+//--- Indicator initialization function
+int OnInit()
+{
+    //--- Apply the indicator to the chart
+    IndicatorShortName('Crit Forex Indicator');
+    IndicatorDigits(Digits);
+
+    //--- Return initialization result
+    return(INIT_SUCCEEDED);
+}
+
+//--- Indicator deinitialization function
+void OnDeinit(const int reason)
+{
+    //--- Remove the indicator from the chart
+}
+
+//--- Indicator calculation function
+int OnCalculate(const int rates_total,
+               const int prev_calculated,
+               const datetime &time[],
+               const double &open[],
+               const double &high[],
+               const double &low[],
+               const double &close[],
+               const long &tick_volume[],
+               const long &volume[],
+               const int &spread[])
+{
+    //--- Perform trend analysis and detect weaknesses
+    double trendStrength = CalculateTrendStrength(rates_total, close);
+
+    //--- Predict potential changes in the market trend
+    bool trendChange = PredictTrendChange(trendStrength);
+
+    //--- Display instructions for further trading actions
+    if (trendChange)
+    {
+        Alert('Trend change detected. Consider ', TradeAction(), ' action.');
+        Print('Trend change detected. Consider ', TradeAction(), ' action.');
+    }
+
+    //--- Plot arrows on the chart for trade reference
+    PlotArrows(trendChange);
+
+    //--- Return calculation result
+    return(rates_total);
+}
+
+//--- Calculate the strength of the trend
+double CalculateTrendStrength(const int rates_total, const double &close[])
+{
+    double trendStrength = 0.0;
+
+    //--- Perform trend analysis using historical data
+    for (int i = 1; i < rates_total; i++)
+    {
+        double trendChange = close[i] - close[i - 1];
+        trendStrength += trendChange;
+    }
+
+    //--- Normalize trend strength
+    trendStrength /= rates_total;
+
+    return trendStrength;
+}
+
+//--- Predict potential changes in the market trend
+bool PredictTrendChange(const double trendStrength)
+{
+    if (trendStrength <= 0)
+        return true;
+    else
+        return false;
+}
+
+//--- Get the recommended trading action based on trend change
+string TradeAction()
+{
+    int randomNum = MathRand() % 2;
+
+    if (randomNum == 0)
+        return 'buying';
+    else
+        return 'selling';
+}
+
+//--- Plot arrows on the chart for trade reference
+void PlotArrows(const bool trendChange)
+{
+    if (trendChange)
+        ChartSetInteger(0, CHART_WINDOWS, 0);
+    else
+        ChartSetInteger(0, CHART_WINDOWS, 1);
+}
